@@ -1,0 +1,26 @@
+# Servidor de inferencia de producao com vLLM (Capitulo 10)
+# Confira a tag da imagem e a sintaxe de GPU na documentacao vigente.
+services:
+  llm-servidor:
+    image: vllm/vllm-openai:latest
+    container_name: servidor_llm_equipe
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Monta a pasta de modelos do hospedeiro dentro do conteiner
+      - /opt/modelos:/modelos
+    deploy:
+      resources:
+        reservations:
+          devices:
+            # Concede acesso formal aos nucleos da placa grafica
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      --model /modelos/modelo_especialista
+      --host 0.0.0.0
+      --port 8000
+      --max-model-len 4096
+      --max-num-seqs 16
